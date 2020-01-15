@@ -1,7 +1,147 @@
 package com.company;
 
+import org.jetbrains.annotations.Contract;
+
 import java.math.BigInteger;
 import java.util.*;
+
+class Car {
+    private float fuel;
+    private float XCoordinate;
+    final private float consumption;
+
+    public Car(float consumption) {
+        this.consumption = consumption;
+        this.fuel = 0;
+        this.XCoordinate = 0;
+    }
+
+    private float getFuel() {
+        return fuel;
+    }
+
+    private float getXCoordinate() {
+        return XCoordinate;
+    }
+
+    private float getConsumption() {
+        return consumption;
+    }
+
+    public void setFuel(float fuel) {
+        this.fuel = fuel;
+    }
+
+    private void setXCoordinate(float XCoordinate) {
+        this.XCoordinate = XCoordinate;
+    }
+
+    public void addFuel(float galons) {
+        setFuel(getFuel() + galons);
+    }
+
+    public void drive(float miles) {
+        float maxMiles = this.getFuel() / this.getConsumption();
+        miles = Math.min(maxMiles, miles);
+        float fuelRequired = miles * this.getConsumption();
+        this.setXCoordinate(this.getXCoordinate() + miles);
+        this.setFuel(this.getFuel() - fuelRequired);
+    }
+}
+
+interface Transformer {
+    Transformer translate(float x, float y);
+
+    Transformer scale(float factor);
+
+    BasePoint getPoint();
+}
+
+/**
+ * A new class to implement all this stuff.
+ *
+ * @version 2.1
+ */
+class MutatorTransformer implements Transformer {
+
+    private BasePoint point;
+
+    public MutatorTransformer() {
+        this.point = new BasePoint();
+    }
+
+    /**
+     * Returns immutable point on every method call.
+     * <p>
+     * For every call this will create a new instance
+     * of BasePoint.
+     * </p>
+     *
+     * @param x X value of the new point position
+     * @param y Y value of the new point position
+     * @return an updated MutatorTransformer to use chaining.
+     * @author Roman Nevezhyn
+     * @see BasePoint
+     */
+    public MutatorTransformer translate(float x, float y) {
+        this.point = new BasePoint(this.point.getX() + x,
+                this.point.getY() + y);
+        return this;
+    }
+
+    /**
+     * @param factor
+     * @return
+     */
+    public MutatorTransformer scale(float factor) {
+        this.point = new BasePoint(this.point.getX() * factor, this.point.getY() * factor);
+        return this;
+    }
+
+    public BasePoint getPoint() {
+        return this.point;
+    }
+}
+
+interface GeometricPoint {
+    float x = 0.0f;
+    float y = 0.0f;
+
+    float getX();
+
+    float getY();
+
+//    float setY();
+//
+//    float setX();
+}
+
+class BasePoint implements GeometricPoint {
+    public float x = 0.0f;
+    public float y = 0.0f;
+
+    public BasePoint() {
+        this(0, 0);
+    }
+
+    public BasePoint(float x, float y) {
+        this.x = x;
+        this.y = y;
+    }
+
+    public float getX() {
+        return this.x;
+    }
+
+    public float getY() {
+        return this.y;
+    }
+
+    public String coordinates() {
+        return "X: " + this.getX() + " " + "Y: " + this.getY();
+    }
+
+}
 
 public class Main {
     private static void task1_1(String[] args) {
@@ -134,6 +274,59 @@ public class Main {
         System.out.println(pool.toString());
     }
 
+    private static boolean checkMatrix(int[][] rows) {
+        int rowsSum = 0, colsSum = 0, diagonalSum = 0;
+        for (int i = 0; i < rows.length; i++) {
+            for (int j = 0; j < rows[i].length; j++) {
+                rowsSum += rows[i][j];
+            }
+        }
+        return rowsSum == colsSum && rowsSum == diagonalSum;
+    }
+
+    private static void task1_14(String[] params) {
+        Scanner in = new Scanner(System.in);
+        int[][] rows = new int[5][5];
+        int rowIndex = 0;
+        boolean working = true;
+        while (working && in.hasNextLine()) {
+            int colIndex = 0;
+            String line = in.nextLine();
+            if (line.isEmpty()) {
+                System.out.println("Bue!!!");
+                working = false;
+            } else {
+                String[] values = line.split(" ");
+                in.nextInt();
+                for (String value : values) {
+                    if (!value.isEmpty()) {
+                        rows[rowIndex][colIndex] = Integer.parseInt(value);
+                        colIndex += 1;
+                    }
+                }
+                rowIndex += 1;
+            }
+        }
+        System.out.println(Arrays.deepToString(rows));
+    }
+
+    private static void task2_5(String[] params) {
+        MutatorTransformer tr = new MutatorTransformer();
+        System.out.println(tr.translate(4, 2).getPoint().coordinates());
+        System.out.println(tr.scale(2.5547f).getPoint().coordinates());
+        System.out.println(tr.translate(12, 55).scale(2).getPoint().coordinates());
+    }
+
+    private static void task2_9(String[] params) {
+        Car car = new Car(10f);
+        car.addFuel(100f);
+        car.drive(3.5f);
+        System.out.println("Hallo");
+        car.drive(5f);
+        car.drive(10f);
+        System.out.println("Hallo");
+    }
+
     public static void main(String[] args) {
         String task = args[0];
         String[] params = Arrays.copyOfRange(args, 1, args.length);
@@ -167,6 +360,15 @@ public class Main {
                 break;
             case "-t113":
                 task1_13(params);
+                break;
+            case "-t114":
+                task1_14(params);
+                break;
+            case "-t25":
+                task2_5(params);
+                break;
+            case "-t29":
+                task2_9(params);
                 break;
             default:
                 System.out.printf("Unknown parameter: %s", task);
