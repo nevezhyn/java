@@ -1,8 +1,8 @@
 package com.company;
 
-import org.jetbrains.annotations.Contract;
-
 import java.math.BigInteger;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.util.*;
 
 class Car {
@@ -327,6 +327,36 @@ public class Main {
         System.out.println("Hallo");
     }
 
+    private static void task2_1(String[] params) {
+        int year = Integer.parseInt(params[0]);
+        int month = Integer.parseInt(params[1]);
+
+//        System.out.println("Mon Tue Wed Thu Fri Sat Sun");
+        System.out.println("Sun Mon Tue Wed Thu Fri Sat");
+
+        LocalDate date = LocalDate.of(year, month, 1);
+        DayOfWeek start = date.getDayOfWeek();
+        int value = start.getValue();
+        for (int i = 0; i < value; i++) {
+            System.out.print("   ");
+        }
+        while (date.getMonthValue() == month) {
+            int weekday = date.getDayOfYear() + 1;
+            if (weekday % 6 == 0) {
+                System.out.print("\n");
+            }
+            String format;
+            if (date.getDayOfMonth() > 9){
+                format = "%4d";
+            }
+            else {
+                format = "%3d";
+            }
+            System.out.printf(format, date.getDayOfMonth());
+            date = date.plusDays(1);
+        }
+    }
+
     public static void main(String[] args) {
         String task = args[0];
         String[] params = Arrays.copyOfRange(args, 1, args.length);
@@ -363,6 +393,9 @@ public class Main {
                 break;
             case "-t114":
                 task1_14(params);
+                break;
+            case "-t21":
+                task2_1(params);
                 break;
             case "-t25":
                 task2_5(params);
